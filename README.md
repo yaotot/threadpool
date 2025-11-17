@@ -8,3 +8,12 @@
 3. Time consumed task 
     -  time wait IO operation(net, file)
     -  time caculation 
+
+4. how to decide the number of thread in pool?
+    - cpu center    --number of cpu core
+    - IO center     --2 * number of cpu core
+  
+5. Componet of the thread pools
+    - producter thread
+    - data structure: multithread operation env, Queue
+    - thread pool thread (consumer threads)
