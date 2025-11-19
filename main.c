@@ -22,14 +22,15 @@ void do_task(void *arg){
 
 void test_thrdpool_basic(){
     int threads = 8;
-    pthread_mutex_init(&lock, NULL);
+    pthread_mutex_init(&lock, NULL);  //初始化全局lock
     thrdpool_t *pool = thrdpool_create(threads);
+
     if (pool == NULL){
         perror("thread pool create error!\n");
         exit(-1);
     }
 
-    while (thrdpool_post(pool, &do_task, pool)== 0){
+    while (thrdpool_post(pool, &do_task, pool)== 0){  //传入do——task这个函数
     }
 
     thrdpool_waitdone(pool);

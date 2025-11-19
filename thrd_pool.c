@@ -19,9 +19,9 @@ typedef struct task_queue_s{
     void *head;
     void **tail;
     int block;
-    spinlock_t lock;
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
+    spinlock_t lock;  // 自旋锁，会一直等待不会释放cpu
+    pthread_mutex_t mutex;  //queue中的互斥锁，会睡眠，不会占用cpu
+    pthread_cond_t cond;   //queue中的条件锁，
 
 }task_queue_t;
 
@@ -34,12 +34,11 @@ struct thrdpool_s{
 };
 
 
-//the function to create a task queue iniit
+//the function to create a task queue init
 static task_queue_t *
 __taskqueue_create(){
-    task_queue_t *queue = (task_queue_t *)malloc(sizeof(*queue));
+    task_queue_t *queue = (task_queue_t *)malloc(sizeof(*queue));//创建一个queue队列给线程池
     if (!queue) return NULL;
-
     int ret;
     ret = pthread_mutex_init(&queue->mutex, NULL);
     if (ret == 0){
@@ -192,12 +191,10 @@ thrdpool_terminate(thrdpool_t * pool) {
 
 thrdpool_t *
 thrdpool_create(int thrd_count) {
-    thrdpool_t *pool;
-
-    pool = (thrdpool_t*) malloc(sizeof(*pool));
+    thrdpool_t *pool = (thrdpool_t*) malloc(sizeof(*pool)); //创建线程池对象
     if (!pool) return NULL;
 
-    task_queue_t *queue = __taskqueue_create();
+    task_queue_t *queue = __taskqueue_create(); //创建线程池队列
     if (queue) {
         pool->task_queue = queue;
         atomic_init(&pool->quit, 0);
@@ -210,11 +207,14 @@ thrdpool_create(int thrd_count) {
     return NULL;
 }
 
+
+//该函数将任务添加到线程池当中
 int thrdpool_post(thrdpool_t *pool, handler_pt func, void *arg){
     if (atomic_load(&pool->quit)== 1){
         return -1;
     }
-    task_t *task = (task_t *)malloc(sizeof(task_t));
+    task_t *task = (task_t *)malloc(sizeof(task_t)); //创建一个task结构体，并添加到task——queue当中
+
     if (!task) return -1;
     task->func =func;
     task->arg = arg;
