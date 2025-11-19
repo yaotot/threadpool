@@ -15,7 +15,7 @@ void thrdpool_terminate(thrdpool_t *pool);
 
 int thrdpool_post(thrdpool_t *pool, handler_pt func, void *arg);
 
-void thrdpool_wait(thrdpool_t *pool);
+void thrdpool_waitdone(thrdpool_t *pool);
 
 #ifdef __cplusplus
 }
